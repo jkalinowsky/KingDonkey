@@ -11,6 +11,11 @@ private:
     float velocityY;
     float rotationAngle;
 
+    int rotationDirection;
+    bool isFalling;
+    Uint32 fallingTime;
+    const Uint32 FALLING_DELAY = 200;
+
 public:
     Barrel(SDL_Renderer* renderer, const char* imagePath, float x, float y, float velocityX);
 
@@ -25,6 +30,10 @@ public:
     void handlePlatformsCollision(const SDL_Rect& otherRect);
 
     bool isOffScreen(int screenHeight) const;
+
+    void setIsFalling(bool value);
+
+    void setHasFallen(bool value);
 
     void setOnPlatform(bool value);
 };

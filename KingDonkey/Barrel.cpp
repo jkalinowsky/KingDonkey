@@ -1,17 +1,47 @@
 #include "Barrel.h"
 
 Barrel::Barrel(SDL_Renderer* renderer, const char* imagePath, float x, float y, float velocityX)
-    : Sprite(renderer, imagePath, x, y), velocityX(velocityX), velocityY(0.0f), rotationAngle(0.0f) {}
+    : Sprite(renderer, imagePath, x, y), velocityX(velocityX), velocityY(0.0f), rotationAngle(0.0f), isFalling(false), fallingTime(0), FALLING_DELAY(200), rotationDirection(1) {}
 
 void Barrel::update(float deltaTime) {
     applyGravity(deltaTime);
 
+    if (velocityY > 100.0f) {
+        if (!isFalling) {
+            fallingTime = SDL_GetTicks();
+        }
+        isFalling = true;
+    }
+    else {
+        isFalling = false;
+    }
+
+    if (isFalling) {
+        Uint32 currentTime = SDL_GetTicks();
+
+        if (currentTime - fallingTime >= FALLING_DELAY) {
+            velocityX = -velocityX;
+            isFalling = false;
+            rotationDirection = -rotationDirection;
+        }
+    }
+
+    if (velocityX > 0.0f) {
+        velocityX = 100.0f;
+    }
+    else {
+        velocityX = -50.0f;
+    }
+
     rect.x += velocityX * deltaTime;
     rect.y += velocityY * deltaTime;
 
-    rotationAngle += 180.0f * deltaTime;
+    rotationAngle += rotationDirection * 180.0f * deltaTime;
     if (rotationAngle >= 360.0f) {
         rotationAngle -= 360.0f;
+    }
+    else if (rotationAngle < 0.0f) {
+        rotationAngle += 360.0f;
     }
 }
 
@@ -28,10 +58,9 @@ void Barrel::applyGravity(float deltaTime) {
 }
 
 void Barrel::handlePlatformsCollision(const SDL_Rect& otherRect) {
-    if (isColliding(otherRect)) {
-        rect.y = otherRect.y - rect.h;
-        velocityY = 0.0f;
-    }
+    isFalling = false;
+    rect.y = otherRect.y - rect.h;
+    velocityY = 0.0f;
 }
 
 bool Barrel::isOffScreen(int screenHeight) const {

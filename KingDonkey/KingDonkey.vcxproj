@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClCompile Include="Barrel.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="loading.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Sprite.cpp" />

@@ -5,6 +5,7 @@
 #include "player.h"
 #include "barrel.h"
 #include "sprite.h"
+#include "loading.h"
 
 class Game {
 private:
@@ -33,6 +34,8 @@ public:
     void update(SDL_Renderer* renderer);
 
     void render(SDL_Renderer* renderer);
+
+    void restart(SDL_Renderer* renderer, Coordinates barrelSpawnPoint);
 
 private:
     void handleAllCollisions();

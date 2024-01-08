@@ -45,6 +45,8 @@ void Game::update(SDL_Renderer* renderer) {
     player.handleInput();
     player.updateAnimations(deltaTimeSeconds);
 
+    handleAllCollisions();
+
     for (int i = 0; i < barrels_number; ++i) {
         barrels[i]->update(deltaTimeSeconds);
         if (barrels[i]->isOffScreen(SCREEN_HEIGHT)) {
@@ -52,8 +54,6 @@ void Game::update(SDL_Renderer* renderer) {
             barrels[i] = barrels[--barrels_number];
         }
     }
-
-    handleAllCollisions();
 
     lastFrameTime = currentFrameTime;
 
@@ -106,6 +106,7 @@ void Game::handleAllCollisions() {
         for (int j = 0; j < platforms_number; ++j) {
             if (barrels[i]->isColliding(platforms[j]->rect)) {
                 barrels[i]->handlePlatformsCollision(platforms[j]->rect);
+                break;
             }
         }
     }
@@ -116,3 +117,56 @@ void Game::spawnBarrel(SDL_Renderer* renderer, int x, int y, float velocityX) {
         barrels[barrels_number++] = new Barrel(renderer, "./graphics/barrel.bmp", x, y, velocityX);
     }
 }
+
+void Game::restart(SDL_Renderer* renderer, Coordinates barrelSpawnPoint) {
+    for (int i = 0; i < platforms_number; ++i) {
+        delete platforms[i];
+    }
+    delete[] platforms;
+
+    for (int i = 0; i < ladders_number; ++i) {
+        delete ladders[i];
+    }
+    delete[] ladders;
+
+    for (int i = 0; i < barrels_number; ++i) {
+        delete barrels[i];
+    }
+    delete[] barrels;
+
+    int numPlatforms = loadPlatformsNumber("./map.txt");
+    int numLadders = loadLaddersNumber("./map.txt");
+
+    Coordinates* platformCoordinates = new Coordinates[numPlatforms];
+    Coordinates* ladderCoordinates = new Coordinates[numLadders];
+
+    loadPlatformCoordinates("./map.txt", platformCoordinates, numPlatforms);
+    loadLadderCoordinates("./map.txt", ladderCoordinates, numLadders);
+
+    platforms_number = numPlatforms;
+    ladders_number = numLadders;
+    barrels_number = 0;
+    lastBarrelSpawnTime = SDL_GetTicks();
+
+    platforms = new Sprite * [numPlatforms];
+    ladders = new Sprite * [numLadders];
+    barrels = new Barrel * [MAX_BARRELS];
+
+    for (int i = 0; i < numPlatforms; ++i) {
+        platforms[i] = new Sprite(renderer, "./graphics/platform1.bmp", platformCoordinates[i].x, platformCoordinates[i].y);
+    }
+
+    for (int i = 0; i < numLadders; ++i) {
+        ladders[i] = new Sprite(renderer, "./graphics/ladder85.bmp", ladderCoordinates[i].x, ladderCoordinates[i].y);
+    }
+
+    lastFrameTime = SDL_GetTicks();
+
+    player.setPos(200, 500);
+    player.resetState();
+
+    delete[] platformCoordinates;
+    delete[] ladderCoordinates;
+}
+
+

@@ -49,6 +49,10 @@ public:
     void handlePlatformsCollision(const SDL_Rect& otherRect);
 
     void handleLaddersCollision(Sprite* ladder);
+
+    void resetState();
+
+    void setPos(int x, int y);
 };
 
 #endif // !PLAYER_H

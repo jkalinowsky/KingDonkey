@@ -1,7 +1,4 @@
-
-#include "includes.h"
-#include "game.h"
-#include "loading.h"
+#include "Game.h"
 
 int main(int argc, char** argv) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -46,7 +43,7 @@ int main(int argc, char** argv) {
     bool restartGame = false;
 
     while (!quitProgram) {
-        // event handling
+        // Event handling
         while (SDL_PollEvent(&event) != 0) {
             if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_ESCAPE) {
@@ -58,15 +55,20 @@ int main(int argc, char** argv) {
             }
         }
 
+        if (restartGame) {
+            game.restart(renderer, BarrelCoordinates);
+            restartGame = false;
+        }
+
         game.update(renderer);
 
-        // rendering
+        // Rendering
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         game.render(renderer);
 
         SDL_RenderPresent(renderer);
-	}
+    }
 
     // cleaning up
 	SDL_DestroyRenderer(renderer);

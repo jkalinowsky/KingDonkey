@@ -175,14 +175,27 @@ void Player::handleLaddersCollision(Sprite* ladder) {
         velocityY = 0.0f;
 
         if (state[SDL_SCANCODE_UP]) {
-            moveOnLadder(-7.0f);
+            moveOnLadder(-3.0f);
         }
         else if (state[SDL_SCANCODE_DOWN]) {
-            moveOnLadder(7.0f);
+            moveOnLadder(3.0f);
         }
     }
     else {
         currentLadder = nullptr;
         onLadder = false;
     }
+}
+
+void Player::resetState() {
+	velocityX = 0.0f;
+	velocityY = 0.0f;
+	isOnGround = false;
+	onLadder = false;
+	currentLadder = nullptr;
+}
+
+void Player::setPos(int x, int y) {
+	rect.x = x;
+	rect.y = y;
 }
