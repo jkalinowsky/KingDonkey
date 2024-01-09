@@ -10,6 +10,8 @@ private:
     float velocityY;
     bool isOnGround;
 
+    int lives;
+
     int currentFrame;
     int frameCounter;
     static const int FRAME_INTERVAL = FPS / 4;
@@ -53,6 +55,8 @@ public:
     void resetState();
 
     void setPos(int x, int y);
+
+    void die();
 };
 
 #endif // !PLAYER_H

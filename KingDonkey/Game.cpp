@@ -1,8 +1,10 @@
 #include "Game.h"
 
-Game::Game(SDL_Renderer* renderer, int playerX, int playerY, Coordinates platformCoordinates[], int numPlatforms, Coordinates ladderCoordinates[], int numLadders, Coordinates barrelSpawnPoint)
-    : player(renderer, playerX, playerY), platforms_number(numPlatforms), ladders_number(numLadders), barrels_number(0), targetFrameTime(1000 / FPS),
-    lastBarrelSpawnTime(SDL_GetTicks()), barrelSpawnInterval(8000), barrelSpawnPoint(barrelSpawnPoint) {
+Game::Game(SDL_Renderer* renderer, int playerX, int playerY, Coordinates platformCoordinates[], int numPlatforms, 
+    Coordinates ladderCoordinates[], int numLadders)
+    : player(renderer, playerX, playerY), donkey(renderer, 160, 55), platforms_number(numPlatforms), ladders_number(numLadders), 
+    barrels_number(0), targetFrameTime(1000 / FPS), lastBarrelSpawnTime(SDL_GetTicks()),
+    barrelSpawnInterval(8000), barrelSpawnPoint({280, 145}), totalGameTime(0.0) {
 
     platforms = new Sprite * [numPlatforms];
     ladders = new Sprite * [numLadders];
@@ -40,35 +42,40 @@ void Game::update(SDL_Renderer* renderer) {
     Uint32 currentFrameTime = SDL_GetTicks();
     Uint32 deltaTime = currentFrameTime - lastFrameTime;
 
-    float deltaTimeSeconds = static_cast<float>(deltaTime) / 1000.0f;
-
     player.handleInput();
-    player.updateAnimations(deltaTimeSeconds);
+    player.updateAnimations((float)(deltaTime) / 1000.0f);
+    donkey.updateAnimations((float)(deltaTime) / 1000.0f);
 
-    handleAllCollisions();
+    handleAllCollisions(renderer);
 
     for (int i = 0; i < barrels_number; ++i) {
-        barrels[i]->update(deltaTimeSeconds);
+        barrels[i]->update((float)(deltaTime) / 1000.0f);
         if (barrels[i]->isOffScreen(SCREEN_HEIGHT)) {
             delete barrels[i];
             barrels[i] = barrels[--barrels_number];
         }
     }
 
-    lastFrameTime = currentFrameTime;
+    if (barrels_number < MAX_BARRELS && SDL_GetTicks() - lastBarrelSpawnTime >= barrelSpawnInterval - 2000) {
+        donkey.isThrowing = true;
+    }
 
     if (barrels_number < MAX_BARRELS && SDL_GetTicks() - lastBarrelSpawnTime >= barrelSpawnInterval) {
         spawnBarrel(renderer, barrelSpawnPoint.x, barrelSpawnPoint.y, 100.0f);
         lastBarrelSpawnTime = SDL_GetTicks();
     }
 
-    Uint32 elapsedTime = SDL_GetTicks() - currentFrameTime;
-    Uint32 remainingTime = (elapsedTime < targetFrameTime) ? (targetFrameTime - elapsedTime) : 0;
+    totalGameTime += (float)deltaTime / 1000.0f;
+    snprintf(gameTimeText, sizeof(gameTimeText), "Time: %.1f s", totalGameTime);
+
+    lastFrameTime = currentFrameTime;
+    Uint32 remainingTime = (deltaTime < targetFrameTime) ? (targetFrameTime - deltaTime) : 0;
 
     if (remainingTime > 0) {
         SDL_Delay(remainingTime);
     }
 }
+
 
 void Game::render(SDL_Renderer* renderer) {
     for (int i = 0; i < ladders_number; ++i) {
@@ -80,10 +87,11 @@ void Game::render(SDL_Renderer* renderer) {
     for (int i = 0; i < barrels_number; ++i) {
         barrels[i]->render(renderer);
     }
+    donkey.render(renderer);
     player.render(renderer);
 }
 
-void Game::handleAllCollisions() {
+void Game::handleAllCollisions(SDL_Renderer* renderer) {
     bool onLadder = false;
 
     for (int i = 0; i < ladders_number; ++i) {
@@ -101,6 +109,12 @@ void Game::handleAllCollisions() {
             }
         }
     }
+    for (int i = 0; i < barrels_number; i++) {
+        if (barrels[i]->isColliding(player.rect)) {
+            player.die();
+            restart(renderer);
+		}
+	}
 
     for (int i = 0; i < barrels_number; i++) {
         for (int j = 0; j < platforms_number; ++j) {
@@ -118,7 +132,7 @@ void Game::spawnBarrel(SDL_Renderer* renderer, int x, int y, float velocityX) {
     }
 }
 
-void Game::restart(SDL_Renderer* renderer, Coordinates barrelSpawnPoint) {
+void Game::restart(SDL_Renderer* renderer) {
     for (int i = 0; i < platforms_number; ++i) {
         delete platforms[i];
     }

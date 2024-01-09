@@ -6,10 +6,12 @@
 #include "barrel.h"
 #include "sprite.h"
 #include "loading.h"
+#include "Donkey.h"
 
 class Game {
 private:
     Player player;
+    Donkey donkey;
     Sprite** platforms;
     Sprite** ladders;
     Barrel** barrels;
@@ -22,12 +24,17 @@ private:
 
     Uint32 lastFrameTime;
     const Uint32 targetFrameTime;
+    float totalGameTime;
 
     Uint32 lastBarrelSpawnTime;
     const Uint32 barrelSpawnInterval;
 
 public:
-    Game(SDL_Renderer* renderer, int playerX, int playerY, Coordinates platformCoordinates[], int numPlatforms, Coordinates ladderCoordinates[], int numLadders, Coordinates barrelSpawnPoint);
+    char gameTimeText[128];
+
+    Game(SDL_Renderer* renderer, int playerX, int playerY,
+        Coordinates platformCoordinates[], int numPlatforms,
+        Coordinates ladderCoordinates[], int numLadders);
 
     ~Game();
 
@@ -35,10 +42,10 @@ public:
 
     void render(SDL_Renderer* renderer);
 
-    void restart(SDL_Renderer* renderer, Coordinates barrelSpawnPoint);
+    void restart(SDL_Renderer* renderer);
 
 private:
-    void handleAllCollisions();
+    void handleAllCollisions(SDL_Renderer* renderer);
 
     void spawnBarrel(SDL_Renderer* renderer, int x, int y, float velocityX);
 };

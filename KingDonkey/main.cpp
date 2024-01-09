@@ -1,11 +1,37 @@
 #include "Game.h"
 
+void DrawString(SDL_Renderer* renderer, int x, int y, const char* text,
+    SDL_Texture* charsetTexture) {
+    int px, py, c;
+    SDL_Rect s, d;
+    s.w = 8;
+    s.h = 8;
+    d.w = 8;
+    d.h = 8;
+
+    while (*text) {
+        c = *text & 255;
+        px = (c % 16) * 8;
+        py = (c / 16) * 8;
+        s.x = px;
+        s.y = py;
+        d.x = x;
+        d.y = y;
+
+        SDL_Rect destRect = { x, y, 8, 8 };
+        SDL_RenderCopy(renderer, charsetTexture, &s, &destRect);
+
+        x += 8;
+        text++;
+    }
+}
+
+
 int main(int argc, char** argv) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         printf("SDL_Init error: %s\n", SDL_GetError());
         return 1;
     }
-
 
     // window and renderer creation and settings
     SDL_Window* window;
@@ -22,6 +48,10 @@ int main(int argc, char** argv) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_SetWindowTitle(window, "King Donkey");
 
+    SDL_Surface* charset = SDL_LoadBMP("./graphics/cs8x8.bmp");
+    
+    SDL_Texture* charsetTexture = SDL_CreateTextureFromSurface(renderer, charset);
+    SDL_FreeSurface(charset);
 
     // loading from file funcionality
     int numPlatforms = loadPlatformsNumber("./map.txt");
@@ -29,12 +59,11 @@ int main(int argc, char** argv) {
 
     Coordinates* platformCoordinates = new Coordinates[numPlatforms];
     Coordinates* ladderCoordinates = new Coordinates[numLadders];
-    Coordinates BarrelCoordinates = { 160, 145 };
 
     loadPlatformCoordinates("./map.txt", platformCoordinates, numPlatforms);
     loadLadderCoordinates("./map.txt", ladderCoordinates, numLadders);
 
-    Game game(renderer, 200, 500, platformCoordinates, numPlatforms, ladderCoordinates, numLadders, BarrelCoordinates);
+    Game game(renderer, 200, 500, platformCoordinates, numPlatforms, ladderCoordinates, numLadders);
 
 
     // main loop and variables
@@ -43,7 +72,7 @@ int main(int argc, char** argv) {
     bool restartGame = false;
 
     while (!quitProgram) {
-        // Event handling
+        // event handling
         while (SDL_PollEvent(&event) != 0) {
             if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_ESCAPE) {
@@ -56,15 +85,20 @@ int main(int argc, char** argv) {
         }
 
         if (restartGame) {
-            game.restart(renderer, BarrelCoordinates);
+            game.restart(renderer);
             restartGame = false;
         }
 
         game.update(renderer);
 
-        // Rendering
+        // rendering
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
+
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+        DrawString(renderer, 10, 10, game.gameTimeText, charsetTexture);
+
         game.render(renderer);
 
         SDL_RenderPresent(renderer);

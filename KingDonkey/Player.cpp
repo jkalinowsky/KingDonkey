@@ -6,7 +6,8 @@ const float Player::GRAVITY = 800.0f;
 
 Player::Player(SDL_Renderer* renderer, int x, int y)
     : Sprite(renderer, "./graphics/player_walk_left1.bmp", x, y),
-    velocityX(0), velocityY(0), isOnGround(false), currentFrame(0), onLadder(false), currentLadder(nullptr) {
+    velocityX(0), velocityY(0), isOnGround(false), currentFrame(0), onLadder(false), 
+    currentLadder(nullptr), lives(3) {
     for (int i = 0; i < 3; ++i) {
         char walkLeftPath[50];
         char walkRightPath[50];
@@ -185,6 +186,10 @@ void Player::handleLaddersCollision(Sprite* ladder) {
         currentLadder = nullptr;
         onLadder = false;
     }
+}
+
+void Player::die() {
+    Player::lives--;
 }
 
 void Player::resetState() {

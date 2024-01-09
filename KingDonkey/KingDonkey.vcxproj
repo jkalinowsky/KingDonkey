@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Barrel.cpp" />
+    <ClCompile Include="Donkey.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="loading.cpp" />
     <ClCompile Include="main.cpp" />
@@ -139,6 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Barrel.h" />
+    <ClInclude Include="Donkey.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="includes.h" />
     <ClInclude Include="loading.h" />

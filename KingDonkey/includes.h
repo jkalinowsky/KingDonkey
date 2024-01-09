@@ -17,4 +17,5 @@ typedef struct {
     int y;
 } Coordinates;
 
+
 #endif // INCLUDES_H
