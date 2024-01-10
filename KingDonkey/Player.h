@@ -10,14 +10,14 @@ private:
     float velocityY;
     bool isOnGround;
 
-    int lives;
-
     int currentFrame;
     int frameCounter;
+    bool isClimbing;
     static const int FRAME_INTERVAL = FPS / 4;
     SDL_Texture* walkLeftTextures[3];
     SDL_Texture* walkRightTextures[3];
     SDL_Texture* jumpTextures[2];
+    SDL_Texture* climbingTextures[4];
     bool isFacingLeft;
 
     bool onLadder;
@@ -55,8 +55,6 @@ public:
     void resetState();
 
     void setPos(int x, int y);
-
-    void die();
 };
 
 #endif // !PLAYER_H

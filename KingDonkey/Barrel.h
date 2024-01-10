@@ -21,7 +21,7 @@ public:
 
     void update(float deltaTime);
 
-    void render(SDL_Renderer* renderer);
+    void renderWithAngle(SDL_Renderer* renderer);
 
     bool isColliding(const SDL_Rect& otherRect) const;
 
@@ -30,12 +30,6 @@ public:
     void handlePlatformsCollision(const SDL_Rect& otherRect);
 
     bool isOffScreen(int screenHeight) const;
-
-    void setIsFalling(bool value);
-
-    void setHasFallen(bool value);
-
-    void setOnPlatform(bool value);
 };
 
 #endif // !BARREL_H

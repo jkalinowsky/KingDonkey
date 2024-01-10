@@ -10,24 +10,30 @@
 
 class Game {
 private:
-    Player player;
+    Player* player;
     Donkey donkey;
     Sprite** platforms;
     Sprite** ladders;
+    Sprite** trophies;
     Barrel** barrels;
 
     Coordinates barrelSpawnPoint;
+
+    int points;
 
     int platforms_number;
     int ladders_number;
     int barrels_number;
 
+    Uint32 deltaTime; 
     Uint32 lastFrameTime;
     const Uint32 targetFrameTime;
     float totalGameTime;
 
     Uint32 lastBarrelSpawnTime;
     const Uint32 barrelSpawnInterval;
+
+    int lives;
 
 public:
     char gameTimeText[128];
@@ -43,6 +49,14 @@ public:
     void render(SDL_Renderer* renderer);
 
     void restart(SDL_Renderer* renderer);
+
+    void playerDie();
+
+    int getPlayerLives();
+
+    void restartPlayerLives();
+
+    int getPlayerPoints();
 
 private:
     void handleAllCollisions(SDL_Renderer* renderer);

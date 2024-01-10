@@ -45,7 +45,7 @@ void Barrel::update(float deltaTime) {
     }
 }
 
-void Barrel::render(SDL_Renderer* renderer) {
+void Barrel::renderWithAngle(SDL_Renderer* renderer) {
     SDL_RenderCopyEx(renderer, texture, NULL, &rect, rotationAngle, NULL, SDL_FLIP_NONE);
 }
 

@@ -1,31 +1,44 @@
 #include "Game.h"
 
-void DrawString(SDL_Renderer* renderer, int x, int y, const char* text,
-    SDL_Texture* charsetTexture) {
+enum GameState {
+    PLAYING,
+    PLAYER_DEAD,
+    GAME_OVER
+};
+
+void DrawString(SDL_Renderer* renderer, int x, int y, int font, const char* text, SDL_Texture* charsetTexture) {
     int px, py, c;
-    SDL_Rect s, d;
-    s.w = 8;
-    s.h = 8;
-    d.w = 8;
-    d.h = 8;
+    SDL_Rect src = {
+        0,
+        0,
+        8,
+        8,
+    };
 
-    while (*text) {
-        c = *text & 255;
-        px = (c % 16) * 8;
-        py = (c / 16) * 8;
-        s.x = px;
-        s.y = py;
-        d.x = x;
-        d.y = y;
+    SDL_Rect dest = {
+        x,
+        y,
+        8 * font,
+        8 * font,
+    };
 
-        SDL_Rect destRect = { x, y, 8, 8 };
-        SDL_RenderCopy(renderer, charsetTexture, &s, &destRect);
+    for (int i = 0; text[i] != '\0'; i++)
+    {
+        c = text[i] & 255;
+        src.x = (c % 16) * 8;
+        src.y = (c / 16) * 8;
+        dest.x = x + i * 8 * font;
 
-        x += 8;
-        text++;
+        SDL_RenderCopy(renderer, charsetTexture, &src, &dest);
     }
 }
 
+void DrawMenu(SDL_Renderer* renderer, SDL_Texture* charsetTexture, int fontSize) {
+    int x = 200;
+    int y = 200;
+
+    DrawString(renderer, x, y, fontSize, "Press 'N' to start a new game", charsetTexture);
+}
 
 int main(int argc, char** argv) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -63,13 +76,16 @@ int main(int argc, char** argv) {
     loadPlatformCoordinates("./map.txt", platformCoordinates, numPlatforms);
     loadLadderCoordinates("./map.txt", ladderCoordinates, numLadders);
 
-    Game game(renderer, 200, 500, platformCoordinates, numPlatforms, ladderCoordinates, numLadders);
+    Game game(renderer, 200, 600, platformCoordinates, numPlatforms, ladderCoordinates, numLadders);
 
 
     // main loop and variables
     SDL_Event event;
     bool quitProgram = false;
     bool restartGame = false;
+    bool inMenu = true;
+
+    GameState gameState = PLAYING;
 
     while (!quitProgram) {
         // event handling
@@ -80,16 +96,36 @@ int main(int argc, char** argv) {
                 }
                 else if (event.key.keysym.sym == SDLK_n) {
                     restartGame = true;
+                    gameState = PLAYING;
                 }
+                else if (event.key.keysym.sym == SDLK_SPACE && gameState == PLAYER_DEAD) {
+                    restartGame = true;
+                    gameState = PLAYING;
+                }
+            }
+        }
+        int previousLives = game.getPlayerLives();
+
+        if (!inMenu && gameState == PLAYING) {
+            game.update(renderer);
+
+            if (game.getPlayerLives() < previousLives) {
+                previousLives = game.getPlayerLives();
+                gameState = PLAYER_DEAD;
+            }
+
+            if (game.getPlayerLives() == 0) {
+                gameState = GAME_OVER;
+                inMenu = true;
+                game.restartPlayerLives();
             }
         }
 
         if (restartGame) {
             game.restart(renderer);
             restartGame = false;
+            inMenu = false;
         }
-
-        game.update(renderer);
 
         // rendering
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -97,17 +133,37 @@ int main(int argc, char** argv) {
 
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-        DrawString(renderer, 10, 10, game.gameTimeText, charsetTexture);
+        if (inMenu) {
+            DrawMenu(renderer, charsetTexture, 4);
 
-        game.render(renderer);
+            if (gameState == GAME_OVER) {
+                DrawString(renderer, 100, 150, 2, "You died, try again", charsetTexture);
+            }
+        }
+        else {
+            char livesText[20];
+            char pointsText[20];
+            snprintf(livesText, sizeof(livesText), "Lives: %d", game.getPlayerLives());
+            snprintf(pointsText, sizeof(pointsText), "Points: %d", game.getPlayerPoints());
+ 
+            DrawString(renderer, 10, 10, 1, game.gameTimeText, charsetTexture);
+            DrawString(renderer, 10, 30, 1, livesText, charsetTexture);
+            DrawString(renderer, 1120, 10, 1, pointsText, charsetTexture);
+            
+            if (gameState == PLAYER_DEAD) {
+                DrawString(renderer, 496, 30, 1, "If you want to continue, press SPACE", charsetTexture);
+            }
+            
+            game.render(renderer);
+        }
 
         SDL_RenderPresent(renderer);
     }
 
     // cleaning up
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 
-	return 0;
+    return 0;
 }

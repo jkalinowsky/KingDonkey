@@ -1,7 +1,5 @@
 #include "Sprite.h"
 
-Sprite::Sprite() : texture(nullptr) {}
-
 Sprite::Sprite(SDL_Renderer* renderer, const char* imagePath, float x, float y) {
     this->rect.x = x;
     this->rect.y = y;
@@ -29,5 +27,5 @@ Sprite::~Sprite() {
 }
 
 void Sprite::render(SDL_Renderer* renderer) {
-    SDL_RenderCopy(renderer, texture, NULL, &rect);
+    SDL_RenderCopy(renderer, texture, nullptr, &rect);
 }

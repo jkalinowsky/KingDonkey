@@ -6,8 +6,8 @@ const float Player::GRAVITY = 800.0f;
 
 Player::Player(SDL_Renderer* renderer, int x, int y)
     : Sprite(renderer, "./graphics/player_walk_left1.bmp", x, y),
-    velocityX(0), velocityY(0), isOnGround(false), currentFrame(0), onLadder(false), 
-    currentLadder(nullptr), lives(3) {
+    velocityX(0), velocityY(0), isOnGround(false), currentFrame(0), onLadder(false),
+    currentLadder(nullptr), isClimbing(false) {
     for (int i = 0; i < 3; ++i) {
         char walkLeftPath[50];
         char walkRightPath[50];
@@ -21,6 +21,12 @@ Player::Player(SDL_Renderer* renderer, int x, int y)
     jumpTextures[1] = loadTexture(renderer, "./graphics/player_jump_right.bmp");
     texture = walkRightTextures[1];
     isFacingLeft = false;
+
+    for (int i = 0; i < 4; ++i) {
+        char climbingPath[50];
+        sprintf(climbingPath, "./graphics/player_climbing%d.bmp", i + 1);
+        climbingTextures[i] = loadTexture(renderer, climbingPath);
+    }
 }
 
 SDL_Texture* Player::loadTexture(SDL_Renderer* renderer, const char* imagePath) {
@@ -98,6 +104,15 @@ void Player::updateAnimations(float deltaTime) {
         }
     }
 
+    if (onLadder && !isClimbing) {
+        texture = climbingTextures[0];
+    }
+
+    if (onLadder && isClimbing) {
+        texture = climbingTextures[currentFrame];
+        isClimbing = false;
+    }
+
     if (frameCounter == 0) {
         currentFrame = (currentFrame + 1) % 3;
     }
@@ -118,6 +133,15 @@ void Player::handleInput() {
     if (!state[SDL_SCANCODE_LEFT] && !state[SDL_SCANCODE_RIGHT]) {
         velocityX = 0.0f;
     }
+
+    if (onLadder) {
+        if (state[SDL_SCANCODE_UP]) {
+            moveOnLadder(-1.0f);
+        }
+        else if (state[SDL_SCANCODE_DOWN]) {
+            moveOnLadder(1.0f);
+        }
+    }
 }
 
 bool Player::isOnLadder() {
@@ -126,6 +150,7 @@ bool Player::isOnLadder() {
 
 void Player::moveOnLadder(float deltaY) {
     if (currentLadder) {
+        isClimbing = true;
         if (deltaY > 0 && rect.y + rect.h < currentLadder->rect.y + currentLadder->rect.h) {
             rect.y += deltaY;
             rect.x = currentLadder->rect.x + (currentLadder->rect.w - rect.w) / 2;
@@ -174,13 +199,6 @@ void Player::handleLaddersCollision(Sprite* ladder) {
         isOnGround = false;
 
         velocityY = 0.0f;
-
-        if (state[SDL_SCANCODE_UP]) {
-            moveOnLadder(-3.0f);
-        }
-        else if (state[SDL_SCANCODE_DOWN]) {
-            moveOnLadder(3.0f);
-        }
     }
     else {
         currentLadder = nullptr;
@@ -188,13 +206,10 @@ void Player::handleLaddersCollision(Sprite* ladder) {
     }
 }
 
-void Player::die() {
-    Player::lives--;
-}
-
 void Player::resetState() {
 	velocityX = 0.0f;
 	velocityY = 0.0f;
+    isFacingLeft = false;
 	isOnGround = false;
 	onLadder = false;
 	currentLadder = nullptr;

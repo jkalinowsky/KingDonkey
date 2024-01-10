@@ -1,10 +1,10 @@
 #include "Game.h"
 
-Game::Game(SDL_Renderer* renderer, int playerX, int playerY, Coordinates platformCoordinates[], int numPlatforms, 
+Game::Game(SDL_Renderer* renderer, int playerX, int playerY, Coordinates platformCoordinates[], int numPlatforms,
     Coordinates ladderCoordinates[], int numLadders)
-    : player(renderer, playerX, playerY), donkey(renderer, 160, 55), platforms_number(numPlatforms), ladders_number(numLadders), 
+    : player(new Player(renderer, playerX, playerY)), donkey(renderer, 160, 55), platforms_number(numPlatforms), ladders_number(numLadders),
     barrels_number(0), targetFrameTime(1000 / FPS), lastBarrelSpawnTime(SDL_GetTicks()),
-    barrelSpawnInterval(8000), barrelSpawnPoint({280, 145}), totalGameTime(0.0) {
+    barrelSpawnInterval(8000), barrelSpawnPoint({ 280, 145 }), totalGameTime(0.0), lives(3), points(0) {
 
     platforms = new Sprite * [numPlatforms];
     ladders = new Sprite * [numLadders];
@@ -40,10 +40,10 @@ Game::~Game() {
 
 void Game::update(SDL_Renderer* renderer) {
     Uint32 currentFrameTime = SDL_GetTicks();
-    Uint32 deltaTime = currentFrameTime - lastFrameTime;
+    deltaTime = currentFrameTime - lastFrameTime;
 
-    player.handleInput();
-    player.updateAnimations((float)(deltaTime) / 1000.0f);
+    player->handleInput();
+    player->updateAnimations((float)(deltaTime) / 1000.0f);
     donkey.updateAnimations((float)(deltaTime) / 1000.0f);
 
     handleAllCollisions(renderer);
@@ -63,6 +63,7 @@ void Game::update(SDL_Renderer* renderer) {
     if (barrels_number < MAX_BARRELS && SDL_GetTicks() - lastBarrelSpawnTime >= barrelSpawnInterval) {
         spawnBarrel(renderer, barrelSpawnPoint.x, barrelSpawnPoint.y, 100.0f);
         lastBarrelSpawnTime = SDL_GetTicks();
+        donkey.isThrowing = false;
     }
 
     totalGameTime += (float)deltaTime / 1000.0f;
@@ -85,18 +86,18 @@ void Game::render(SDL_Renderer* renderer) {
         platforms[i]->render(renderer);
     }
     for (int i = 0; i < barrels_number; ++i) {
-        barrels[i]->render(renderer);
+        barrels[i]->renderWithAngle(renderer);
     }
     donkey.render(renderer);
-    player.render(renderer);
+    player->render(renderer);
 }
 
 void Game::handleAllCollisions(SDL_Renderer* renderer) {
     bool onLadder = false;
 
     for (int i = 0; i < ladders_number; ++i) {
-        player.handleLaddersCollision(ladders[i]);
-        if (player.isOnLadder()) {
+        player->handleLaddersCollision(ladders[i]);
+        if (player->isOnLadder()) {
             onLadder = true;
             break;
         }
@@ -104,14 +105,14 @@ void Game::handleAllCollisions(SDL_Renderer* renderer) {
 
     if (!onLadder) {
         for (int i = 0; i < platforms_number; ++i) {
-            if (player.isColliding(platforms[i]->rect)) {
-                player.handlePlatformsCollision(platforms[i]->rect);
+            if (player->isColliding(platforms[i]->rect)) {
+                player->handlePlatformsCollision(platforms[i]->rect);
             }
         }
     }
     for (int i = 0; i < barrels_number; i++) {
-        if (barrels[i]->isColliding(player.rect)) {
-            player.die();
+        if (barrels[i]->isColliding(player->rect)) {
+            playerDie();
             restart(renderer);
 		}
 	}
@@ -147,6 +148,7 @@ void Game::restart(SDL_Renderer* renderer) {
         delete barrels[i];
     }
     delete[] barrels;
+    barrels_number = 0;
 
     int numPlatforms = loadPlatformsNumber("./map.txt");
     int numLadders = loadLaddersNumber("./map.txt");
@@ -159,7 +161,6 @@ void Game::restart(SDL_Renderer* renderer) {
 
     platforms_number = numPlatforms;
     ladders_number = numLadders;
-    barrels_number = 0;
     lastBarrelSpawnTime = SDL_GetTicks();
 
     platforms = new Sprite * [numPlatforms];
@@ -167,20 +168,36 @@ void Game::restart(SDL_Renderer* renderer) {
     barrels = new Barrel * [MAX_BARRELS];
 
     for (int i = 0; i < numPlatforms; ++i) {
-        platforms[i] = new Sprite(renderer, "./graphics/platform1.bmp", platformCoordinates[i].x, platformCoordinates[i].y);
+        platforms[i] = new Sprite(renderer, "./graphics/platform.bmp", platformCoordinates[i].x, platformCoordinates[i].y);
     }
 
     for (int i = 0; i < numLadders; ++i) {
         ladders[i] = new Sprite(renderer, "./graphics/ladder85.bmp", ladderCoordinates[i].x, ladderCoordinates[i].y);
     }
 
+    totalGameTime = 0.0;
     lastFrameTime = SDL_GetTicks();
 
-    player.setPos(200, 500);
-    player.resetState();
+    player->setPos(200, 600);
+    player->resetState();
 
     delete[] platformCoordinates;
     delete[] ladderCoordinates;
 }
 
 
+int Game::getPlayerLives() {
+    return lives;
+}
+
+void Game::restartPlayerLives() {
+    lives = 3;
+}
+
+void Game::playerDie() {
+    lives--;
+}
+
+int Game::getPlayerPoints() {
+    return points;
+}

@@ -42,6 +42,7 @@ SDL_Texture* Donkey::loadTexture(SDL_Renderer* renderer, const char* imagePath) 
 void Donkey::updateAnimations(float deltaTime) {
     if (!isThrowing) {
         animationTimer += deltaTime;
+        throwingAnimationIndex = 0;
         if (animationTimer >= 0.7f) {
             standingAnimationIndex = (standingAnimationIndex + 1) % 4;
             texture = standingTexture[standingAnimationIndex];
@@ -54,11 +55,6 @@ void Donkey::updateAnimations(float deltaTime) {
             texture = throwingTexture[throwingAnimationIndex];
             throwingAnimationIndex += 1;
             animationTimer = 0.0f;
-
-            if (throwingAnimationIndex == 3) {
-                isThrowing = false;
-                throwingAnimationIndex = 0;
-            }
         }
     }
 }
