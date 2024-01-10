@@ -7,20 +7,25 @@
 #include "sprite.h"
 #include "loading.h"
 #include "Donkey.h"
+#include "TextRenderer.h" 
 
 class Game {
 private:
     Player* player;
-    Donkey donkey;
+    Donkey* donkey;
     Sprite** platforms;
     Sprite** ladders;
     Sprite** trophies;
+    Sprite** livesSprites;
     Barrel** barrels;
+    TextRenderer textRenderer;
 
     Coordinates barrelSpawnPoint;
+    Coordinates livesSpritesCoordinates[3];
 
     int points;
 
+    int trophies_number;
     int platforms_number;
     int ladders_number;
     int barrels_number;
@@ -30,17 +35,22 @@ private:
     const Uint32 targetFrameTime;
     float totalGameTime;
 
+    bool renderPointsMessage;
+    bool showPointsMessage;
+    Uint32 pointsMessageStartTime;
+
     Uint32 lastBarrelSpawnTime;
     const Uint32 barrelSpawnInterval;
 
     int lives;
-
+    int level;
 public:
     char gameTimeText[128];
 
     Game(SDL_Renderer* renderer, int playerX, int playerY,
         Coordinates platformCoordinates[], int numPlatforms,
-        Coordinates ladderCoordinates[], int numLadders);
+        Coordinates ladderCoordinates[], int numLadders,
+        Coordinates trophiesCoordinates[], int numTrophies);
 
     ~Game();
 
@@ -57,6 +67,16 @@ public:
     void restartPlayerLives();
 
     int getPlayerPoints();
+
+    void restartPlayerPoints();
+
+    bool playerCompletedLevel();
+
+    void increaseLevel();
+
+    void restartLevel();
+
+    void restartGameTime();
 
 private:
     void handleAllCollisions(SDL_Renderer* renderer);

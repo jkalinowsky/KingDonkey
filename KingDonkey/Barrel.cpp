@@ -6,7 +6,7 @@ Barrel::Barrel(SDL_Renderer* renderer, const char* imagePath, float x, float y, 
 void Barrel::update(float deltaTime) {
     applyGravity(deltaTime);
 
-    if (velocityY > 100.0f) {
+    if (velocityY > 150.0f) {
         if (!isFalling) {
             fallingTime = SDL_GetTicks();
         }
@@ -27,10 +27,10 @@ void Barrel::update(float deltaTime) {
     }
 
     if (velocityX > 0.0f) {
-        velocityX = 100.0f;
+        velocityX = 200.0f;
     }
     else {
-        velocityX = -50.0f;
+        velocityX = -100.0f;
     }
 
     rect.x += velocityX * deltaTime;
@@ -65,4 +65,13 @@ void Barrel::handlePlatformsCollision(const SDL_Rect& otherRect) {
 
 bool Barrel::isOffScreen(int screenHeight) const {
     return rect.y > screenHeight;
+}
+
+bool Barrel::isPlayerJumpedOver(const SDL_Rect& playerRect) {
+    if (velocityX > 0) {
+        return ((playerRect.y < rect.y && playerRect.y > rect.y - 80) && (playerRect.x >= rect.x && playerRect.x <= rect.x + 10));
+    }
+    else {
+		return ((playerRect.y < rect.y && playerRect.y > rect.y - 80) && (playerRect.x >= rect.x + rect.w - 10 && playerRect.x <= rect.x + rect.w));
+	}
 }

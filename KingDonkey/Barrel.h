@@ -30,6 +30,8 @@ public:
     void handlePlatformsCollision(const SDL_Rect& otherRect);
 
     bool isOffScreen(int screenHeight) const;
+
+    bool isPlayerJumpedOver(const SDL_Rect& playerRect);
 };
 
 #endif // !BARREL_H

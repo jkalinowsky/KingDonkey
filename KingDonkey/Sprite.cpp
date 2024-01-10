@@ -29,3 +29,7 @@ Sprite::~Sprite() {
 void Sprite::render(SDL_Renderer* renderer) {
     SDL_RenderCopy(renderer, texture, nullptr, &rect);
 }
+
+SDL_Rect Sprite::getHitbox() {
+    return rect;
+}

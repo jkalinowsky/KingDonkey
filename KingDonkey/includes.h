@@ -17,5 +17,11 @@ typedef struct {
     int y;
 } Coordinates;
 
+enum GameState {
+    PLAYING,
+    PLAYER_DEAD,
+    GAME_OVER,
+    LEVEL_COMPLETED
+};
 
 #endif // INCLUDES_H

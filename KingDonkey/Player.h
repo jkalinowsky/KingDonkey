@@ -8,7 +8,7 @@ class Player : public Sprite {
 private:
     float velocityX;
     float velocityY;
-    bool isOnGround;
+    bool onGround;
 
     int currentFrame;
     int frameCounter;
@@ -46,6 +46,8 @@ public:
 
     bool isOnLadder();
 
+    bool isOnGround();
+
     void moveOnLadder(float deltaY);
 
     void handlePlatformsCollision(const SDL_Rect& otherRect);
@@ -55,6 +57,10 @@ public:
     void resetState();
 
     void setPos(int x, int y);
+
+    int getPosX();
+
+    int getPosY();
 };
 
 #endif // !PLAYER_H

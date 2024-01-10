@@ -4,13 +4,13 @@ Donkey::Donkey(SDL_Renderer* renderer, int x, int y)
     : Sprite(renderer, "./graphics/donkey1.bmp", x, y), isThrowing(false),
     animationTimer(0.0f), standingAnimationIndex(0), throwingAnimationIndex(0)
 {
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; ++i) {
         char path[50];
         sprintf(path, "./graphics/donkey%d.bmp", i+1);
 
         standingTexture[i] = loadTexture(renderer, path);
     }
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; ++i) {
         char path[50];
         sprintf(path, "./graphics/donkey%d.bmp", i+5);
 
@@ -53,8 +53,8 @@ void Donkey::updateAnimations(float deltaTime) {
         animationTimer += deltaTime;
         if (animationTimer >= 0.66f) {
             texture = throwingTexture[throwingAnimationIndex];
-            throwingAnimationIndex += 1;
-            animationTimer = 0.0f;
+            throwingAnimationIndex = (throwingAnimationIndex + 1) % 3;
+            animationTimer = 0.0f; 
         }
     }
 }

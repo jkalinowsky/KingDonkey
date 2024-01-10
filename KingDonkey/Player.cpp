@@ -6,7 +6,7 @@ const float Player::GRAVITY = 800.0f;
 
 Player::Player(SDL_Renderer* renderer, int x, int y)
     : Sprite(renderer, "./graphics/player_walk_left1.bmp", x, y),
-    velocityX(0), velocityY(0), isOnGround(false), currentFrame(0), onLadder(false),
+    velocityX(0), velocityY(0), onGround(false), currentFrame(0), onLadder(false),
     currentLadder(nullptr), isClimbing(false) {
     for (int i = 0; i < 3; ++i) {
         char walkLeftPath[50];
@@ -64,9 +64,9 @@ bool Player::isCollidingY(const SDL_Rect& otherRect) const {
 }
 
 void Player::jump() {
-    if (isOnGround && !onLadder) {
+    if (onGround && !onLadder) {
         velocityY = -JUMP_FORCE;
-        isOnGround = false;
+        onGround = false;
     }
 }
 
@@ -95,7 +95,7 @@ void Player::updateAnimations(float deltaTime) {
         }
     }
 
-    if (!isOnGround) {
+    if (!onGround) {
         if (isFacingLeft) {
             texture = jumpTextures[0];
         }
@@ -148,21 +148,25 @@ bool Player::isOnLadder() {
     return onLadder;
 }
 
+bool Player::isOnGround() {
+    return onGround;
+}
+
 void Player::moveOnLadder(float deltaY) {
     if (currentLadder) {
         isClimbing = true;
-        if (deltaY > 0 && rect.y + rect.h < currentLadder->rect.y + currentLadder->rect.h) {
+        if (deltaY > 0 && rect.y + rect.h < currentLadder->getHitbox().y + currentLadder->getHitbox().h) {
             rect.y += deltaY;
-            rect.x = currentLadder->rect.x + (currentLadder->rect.w - rect.w) / 2;
+            rect.x = currentLadder->getHitbox().x + (currentLadder->getHitbox().w - rect.w) / 2;
         }
-        else if (deltaY < 0 && rect.y > currentLadder->rect.y) {
+        else if (deltaY < 0 && rect.y > currentLadder->getHitbox().y) {
             rect.y += deltaY;
-            rect.x = currentLadder->rect.x + (currentLadder->rect.w - rect.w) / 2;
+            rect.x = currentLadder->getHitbox().x + (currentLadder->getHitbox().w - rect.w) / 2;
         }
 
-        if (deltaY < 0 && rect.y <= currentLadder->rect.y) {
-            rect.y = currentLadder->rect.y - rect.h;
-            isOnGround = true;
+        if (deltaY < 0 && rect.y <= currentLadder->getHitbox().y) {
+            rect.y = currentLadder->getHitbox().y - rect.h;
+            onGround = true;
         }
     }
 }
@@ -176,7 +180,7 @@ void Player::handlePlatformsCollision(const SDL_Rect& otherRect) {
             // Colliding from the top
             rect.y = otherRect.y - rect.h;
             velocityY = 0.0f;
-            isOnGround = true;
+            onGround = true;
         }
         else {
             // Colliding from the bottom
@@ -188,7 +192,7 @@ void Player::handlePlatformsCollision(const SDL_Rect& otherRect) {
 
 void Player::handleLaddersCollision(Sprite* ladder) {
     const Uint8* state = SDL_GetKeyboardState(nullptr);
-    SDL_Rect ladderRect = ladder->rect;
+    SDL_Rect ladderRect = ladder->getHitbox();
     int playerMiddleX = rect.x + rect.w / 2;
     int ladderMiddleX = ladderRect.x + ladderRect.w / 2;
     int xRange = 10;
@@ -196,7 +200,7 @@ void Player::handleLaddersCollision(Sprite* ladder) {
     if (isColliding(ladderRect) && playerMiddleX >= ladderMiddleX - xRange && playerMiddleX <= ladderMiddleX + xRange) {
         currentLadder = ladder;
         onLadder = true;
-        isOnGround = false;
+        onGround = false;
 
         velocityY = 0.0f;
     }
@@ -210,7 +214,7 @@ void Player::resetState() {
 	velocityX = 0.0f;
 	velocityY = 0.0f;
     isFacingLeft = false;
-	isOnGround = false;
+    onGround = false;
 	onLadder = false;
 	currentLadder = nullptr;
 }
@@ -218,4 +222,12 @@ void Player::resetState() {
 void Player::setPos(int x, int y) {
 	rect.x = x;
 	rect.y = y;
+}
+
+int Player::getPosY() {
+	return rect.y;
+}
+
+int Player::getPosX() {
+    return rect.x;
 }
