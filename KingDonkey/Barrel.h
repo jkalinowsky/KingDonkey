@@ -10,7 +10,6 @@ private:
     float velocityX;
     float velocityY;
     float rotationAngle;
-
     int rotationDirection;
     bool isFalling;
     Uint32 fallingTime;
@@ -23,11 +22,11 @@ public:
 
     void renderWithAngle(SDL_Renderer* renderer);
 
-    bool isColliding(const SDL_Rect& otherRect) const;
+    void handlePlatformsCollision(const SDL_Rect& otherRect);
 
     void applyGravity(float deltaTime);
 
-    void handlePlatformsCollision(const SDL_Rect& otherRect);
+    bool isColliding(const SDL_Rect& otherRect) const;
 
     bool isOffScreen(int screenHeight) const;
 

@@ -49,27 +49,6 @@ SDL_Texture* Player::loadTexture(SDL_Renderer* renderer, const char* imagePath) 
     return texture;
 }
 
-void Player::applyGravity(float deltaTime) {
-    if (!onLadder) {
-        velocityY += GRAVITY * deltaTime;
-    }
-}
-
-bool Player::isColliding(const SDL_Rect& otherRect) const {
-    return SDL_HasIntersection(&rect, &otherRect);
-}
-
-bool Player::isCollidingY(const SDL_Rect& otherRect) const {
-    return rect.y + rect.h > otherRect.y && rect.y < otherRect.y + otherRect.h;
-}
-
-void Player::jump() {
-    if (onGround && !onLadder) {
-        velocityY = -JUMP_FORCE;
-        onGround = false;
-    }
-}
-
 void Player::updateAnimations(float deltaTime) {
     rect.x += velocityX * deltaTime;
     rect.y += velocityY * deltaTime;
@@ -144,12 +123,17 @@ void Player::handleInput() {
     }
 }
 
-bool Player::isOnLadder() {
-    return onLadder;
+void Player::applyGravity(float deltaTime) {
+    if (!onLadder) {
+        velocityY += GRAVITY * deltaTime;
+    }
 }
 
-bool Player::isOnGround() {
-    return onGround;
+void Player::jump() {
+    if (onGround && !onLadder) {
+        velocityY = -JUMP_FORCE;
+        onGround = false;
+    }
 }
 
 void Player::moveOnLadder(float deltaY) {
@@ -230,4 +214,20 @@ int Player::getPosY() {
 
 int Player::getPosX() {
     return rect.x;
+}
+
+bool Player::isColliding(const SDL_Rect& otherRect) const {
+    return SDL_HasIntersection(&rect, &otherRect);
+}
+
+bool Player::isCollidingY(const SDL_Rect& otherRect) const {
+    return rect.y + rect.h > otherRect.y && rect.y < otherRect.y + otherRect.h;
+}
+
+bool Player::isOnLadder() {
+    return onLadder;
+}
+
+bool Player::isOnGround() {
+    return onGround;
 }

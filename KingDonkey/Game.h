@@ -19,31 +19,24 @@ private:
     Sprite** livesSprites;
     Barrel** barrels;
     TextRenderer textRenderer;
-
     Coordinates barrelSpawnPoint;
     Coordinates livesSpritesCoordinates[3];
-
+    int lives;
+    int level;
     int points;
-
     int trophies_number;
     int platforms_number;
     int ladders_number;
     int barrels_number;
-
-    Uint32 deltaTime; 
-    Uint32 lastFrameTime;
-    const Uint32 targetFrameTime;
     float totalGameTime;
-
     bool renderPointsMessage;
     bool showPointsMessage;
+    Uint32 deltaTime; 
+    Uint32 lastFrameTime;
     Uint32 pointsMessageStartTime;
-
     Uint32 lastBarrelSpawnTime;
+    const Uint32 targetFrameTime;
     const Uint32 barrelSpawnInterval;
-
-    int lives;
-    int level;
 public:
     char gameTimeText[128];
 
@@ -62,21 +55,27 @@ public:
 
     void playerDie();
 
-    int getPlayerLives();
-
     void restartPlayerLives();
 
-    int getPlayerPoints();
-
     void restartPlayerPoints();
-
-    bool playerCompletedLevel();
 
     void increaseLevel();
 
     void restartLevel();
 
     void restartGameTime();
+
+    void setGameLevel(int level);
+
+    bool playerCompletedLevel();
+
+    int getPlayerLives();
+
+    int getPlayerPoints();
+
+    int getGameLevel();
+
+    float getGameTime();
 
 private:
     void handleAllCollisions(SDL_Renderer* renderer);

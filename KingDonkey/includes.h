@@ -21,7 +21,16 @@ enum GameState {
     PLAYING,
     PLAYER_DEAD,
     GAME_OVER,
-    LEVEL_COMPLETED
+    LEVEL_COMPLETED,
+    GAME_COMPLETED
+};
+
+enum MenuState {
+    MAIN_MENU,
+	HIGHSCORES,
+    STORY,
+	LEVEL_SELECT,
+    GAME_END
 };
 
 #endif // INCLUDES_H

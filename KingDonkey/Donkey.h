@@ -8,19 +8,19 @@ class Donkey : public Sprite
 private:
 	SDL_Texture* standingTexture[4];
 	SDL_Texture* throwingTexture[3];
-
 	float animationTimer;
 	int standingAnimationIndex;
 	int throwingAnimationIndex;
-
-public:
 	bool isThrowing;
 
+public:
 	Donkey(SDL_Renderer* renderer, int x, int y);
 
 	SDL_Texture* loadTexture(SDL_Renderer* renderer, const char* imagePath);
 
 	void updateAnimations(float deltaTime);
+
+	void setIsThrowing(bool value);
 
 };
 

@@ -59,3 +59,7 @@ void Donkey::updateAnimations(float deltaTime) {
     }
 }
 
+void Donkey::setIsThrowing(bool value) {
+	isThrowing = value;
+}
+

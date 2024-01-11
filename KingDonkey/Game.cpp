@@ -4,7 +4,7 @@ Game::Game(SDL_Renderer* renderer, int playerX, int playerY, Coordinates platfor
     Coordinates ladderCoordinates[], int numLadders, Coordinates trophiesCoordinates[], int numTrophies)
     : player(new Player(renderer, playerX, playerY)), donkey(new Donkey(renderer, 160, 55)), textRenderer(renderer),
     platforms_number(numPlatforms), ladders_number(numLadders), trophies_number(numTrophies), 
-    barrels_number(0), targetFrameTime(1000 / FPS), lastBarrelSpawnTime(SDL_GetTicks()), barrelSpawnInterval(8000), barrelSpawnPoint({ 280, 145 }), 
+    barrels_number(0), targetFrameTime(1000 / FPS), lastBarrelSpawnTime(SDL_GetTicks()), barrelSpawnInterval(6000), barrelSpawnPoint({ 280, 145 }), 
     totalGameTime(0.0), lives(3), level(1), points(0), showPointsMessage(false), pointsMessageStartTime(0), renderPointsMessage(false),
     livesSpritesCoordinates{ {1121, 10}, {1174, 10}, {1227, 10} } {
 
@@ -86,13 +86,13 @@ void Game::update(SDL_Renderer* renderer) {
     }
 
     if (barrels_number < MAX_BARRELS && SDL_GetTicks() - lastBarrelSpawnTime >= barrelSpawnInterval - 2000) {
-        donkey->isThrowing = true;
+        donkey->setIsThrowing(true);
     }
 
     if (barrels_number < MAX_BARRELS && SDL_GetTicks() - lastBarrelSpawnTime >= barrelSpawnInterval) {
         spawnBarrel(renderer, barrelSpawnPoint.x, barrelSpawnPoint.y, 100.0f);
         lastBarrelSpawnTime = SDL_GetTicks();
-        donkey->isThrowing = false;
+        donkey->setIsThrowing(false);
     }
 
     totalGameTime += (float)deltaTime / 1000.0f;
@@ -105,7 +105,6 @@ void Game::update(SDL_Renderer* renderer) {
         SDL_Delay(remainingTime);
     }
 }
-
 
 void Game::render(SDL_Renderer* renderer) {
     for (int i = 0; i < ladders_number; ++i) {
@@ -127,58 +126,6 @@ void Game::render(SDL_Renderer* renderer) {
     player->render(renderer);
     if (renderPointsMessage == true) 
         textRenderer.drawPoints(player->getPosX() + 9, player->getPosY() - 30, 100);
-}
-
-void Game::handleAllCollisions(SDL_Renderer* renderer) {
-    bool onLadder = false;
-
-    for (int i = 0; i < ladders_number; ++i) {
-        player->handleLaddersCollision(ladders[i]);
-        if (player->isOnLadder()) {
-            onLadder = true;
-            break;
-        }
-    }
-
-    if (!onLadder) {
-        for (int i = 0; i < platforms_number; ++i) {
-            if (player->isColliding(platforms[i]->getHitbox())) {
-                player->handlePlatformsCollision(platforms[i]->getHitbox());
-            }
-        }
-    }
-    for (int i = 0; i < barrels_number; i++) {
-        if (barrels[i]->isColliding(player->getHitbox())) {
-            playerDie();
-            restart(renderer);
-		}
-	}
-
-    for (int i = 0; i < barrels_number; i++) {
-        for (int j = 0; j < platforms_number; ++j) {
-            if (barrels[i]->isColliding(platforms[j]->getHitbox())) {
-                barrels[i]->handlePlatformsCollision(platforms[j]->getHitbox());
-                break;
-            }
-        }
-    }
-
-    for (int i = 0; i < trophies_number; i++) {
-		if (player->isColliding(trophies[i]->getHitbox())) {
-			delete trophies[i];
-			trophies[i] = trophies[--trophies_number];
-			points += 100;
-
-            showPointsMessage = true;
-            pointsMessageStartTime = SDL_GetTicks();
-		}
-    }
-}
-
-void Game::spawnBarrel(SDL_Renderer* renderer, int x, int y, float velocityX) {
-    if (barrels_number < MAX_BARRELS) {
-        barrels[barrels_number++] = new Barrel(renderer, "./graphics/barrel.bmp", x, y, velocityX);
-    }
 }
 
 void Game::restart(SDL_Renderer* renderer) {
@@ -257,9 +204,10 @@ void Game::restart(SDL_Renderer* renderer) {
     delete[] trophiesCoordinates;
 }
 
-
-int Game::getPlayerLives() {
-    return lives;
+void Game::playerDie() {
+    lives--;
+    delete livesSprites[lives];
+    livesSprites[lives] = nullptr;
 }
 
 void Game::restartPlayerLives() {
@@ -270,25 +218,9 @@ void Game::restartPlayerPoints() {
     points = 0;
 }
 
-void Game::playerDie() {
-    lives--;
-    delete livesSprites[lives];
-    livesSprites[lives] = nullptr;
-}
-
-int Game::getPlayerPoints() {
-    return points;
-}
-
-bool Game::playerCompletedLevel() {
-    if (player->getPosY() < 50) {
-        return true;
-	}
-	return false;
-}
-
 void Game::increaseLevel() {
     level += 1;
+    points += 1000;
 }
 
 void Game::restartLevel() {
@@ -297,4 +229,83 @@ void Game::restartLevel() {
 
 void Game::restartGameTime() {
     totalGameTime = 0.0;
+}
+
+void Game::setGameLevel(int level) {
+	this->level = level;
+}
+
+bool Game::playerCompletedLevel() {
+    if (player->getPosY() < 50) {
+        return true;
+    }
+    return false;
+}
+
+int Game::getPlayerLives() {
+    return lives;
+}
+
+int Game::getPlayerPoints() {
+    return points;
+}
+
+int Game::getGameLevel() {
+	return level;
+}
+
+float Game::getGameTime() {
+    return totalGameTime;
+}
+
+void Game::handleAllCollisions(SDL_Renderer* renderer) {
+    bool onLadder = false;
+
+    for (int i = 0; i < ladders_number; ++i) {
+        player->handleLaddersCollision(ladders[i]);
+        if (player->isOnLadder()) {
+            onLadder = true;
+            break;
+        }
+    }
+
+    if (!onLadder) {
+        for (int i = 0; i < platforms_number; ++i) {
+            if (player->isColliding(platforms[i]->getHitbox())) {
+                player->handlePlatformsCollision(platforms[i]->getHitbox());
+            }
+        }
+    }
+    for (int i = 0; i < barrels_number; i++) {
+        if (barrels[i]->isColliding(player->getHitbox())) {
+            playerDie();
+            restart(renderer);
+        }
+    }
+
+    for (int i = 0; i < barrels_number; i++) {
+        for (int j = 0; j < platforms_number; ++j) {
+            if (barrels[i]->isColliding(platforms[j]->getHitbox())) {
+                barrels[i]->handlePlatformsCollision(platforms[j]->getHitbox());
+                break;
+            }
+        }
+    }
+
+    for (int i = 0; i < trophies_number; i++) {
+        if (player->isColliding(trophies[i]->getHitbox())) {
+            delete trophies[i];
+            trophies[i] = trophies[--trophies_number];
+            points += 100;
+
+            showPointsMessage = true;
+            pointsMessageStartTime = SDL_GetTicks();
+        }
+    }
+}
+
+void Game::spawnBarrel(SDL_Renderer* renderer, int x, int y, float velocityX) {
+    if (barrels_number < MAX_BARRELS) {
+        barrels[barrels_number++] = new Barrel(renderer, "./graphics/barrel.bmp", x, y, velocityX);
+    }
 }

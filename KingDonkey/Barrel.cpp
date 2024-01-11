@@ -49,18 +49,18 @@ void Barrel::renderWithAngle(SDL_Renderer* renderer) {
     SDL_RenderCopyEx(renderer, texture, NULL, &rect, rotationAngle, NULL, SDL_FLIP_NONE);
 }
 
-bool Barrel::isColliding(const SDL_Rect& otherRect) const {
-    return SDL_HasIntersection(&rect, &otherRect);
+void Barrel::handlePlatformsCollision(const SDL_Rect& otherRect) {
+    isFalling = false;
+    rect.y = otherRect.y - rect.h;
+    velocityY = 0.0f;
 }
 
 void Barrel::applyGravity(float deltaTime) {
     velocityY += Player::GRAVITY * deltaTime;
 }
 
-void Barrel::handlePlatformsCollision(const SDL_Rect& otherRect) {
-    isFalling = false;
-    rect.y = otherRect.y - rect.h;
-    velocityY = 0.0f;
+bool Barrel::isColliding(const SDL_Rect& otherRect) const {
+    return SDL_HasIntersection(&rect, &otherRect);
 }
 
 bool Barrel::isOffScreen(int screenHeight) const {
