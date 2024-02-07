@@ -1,7 +1,7 @@
 #ifndef LOADING_H
 #define LOADING_H
 
-#include "includes.h"
+#include "defines.h"
 
 int loadPlatformsNumber(const char* filePath);
 void loadPlatformCoordinates(const char* filePath, Coordinates platformCoordinates[], int numPlatforms);

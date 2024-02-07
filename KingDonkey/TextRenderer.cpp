@@ -56,7 +56,8 @@ void TextRenderer::drawMenu() {
 }
 
 void TextRenderer::drawGameOver() {
-    drawString(412, 50, 3.0, "You died. Try again", redColor);
+    drawString(304, 250, 2.0, "You died. If you want to save your result:", redColor);
+    drawString(432, 275, 2.0, "press 'Y', else press 'N'.", redColor);
 }
 
 void TextRenderer::drawPlayerDied() {
@@ -87,15 +88,56 @@ void TextRenderer::drawStory() {
     drawString(344, 450, 2.0, "You are the one embodying this Mario!", redColor);
 }
 
-void TextRenderer::drawGameEnd(int points, float time) {
-    char pointsText[10], timeText[6];
+void TextRenderer::drawGameEnd(int points, float time, GameState gameState) {
+    char pointsText[20], timeText[20];
     sprintf(pointsText, "%d", points);
     sprintf(timeText, "%.2f", time);
-    drawString(225, 50, 4.0, "You won! Congratulations!", greenColor);
-    drawString(448, 100, 2.0, "Your points:", whiteColor);
-    drawString(460, 120, 2.0, pointsText, whiteColor);
+    if (gameState == GAME_COMPLETED)
+        drawString(225, 50, 4.0, "You won! Congratulations!", greenColor);
+    else 
+        drawString(448, 50, 4.0, "You lose! :(", redColor);
+    drawString(412, 100, 2.0, "Your points:", whiteColor);
+    drawString(470, 120, 2.0, pointsText, whiteColor);
     drawString(768, 100, 2.0, "Your time:", whiteColor);
-    drawString(780, 120, 2.0, timeText, whiteColor);
+    drawString(800, 120, 2.0, timeText, whiteColor);
+    drawString(304, 300, 2.0, "Type your nickname to save your highscore:", whiteColor);
+}
+
+void TextRenderer::drawNickname(const char* nickname, int cursorPosition) {
+    drawString(304, 350, 2.0, nickname, whiteColor);
+
+    int cursorX = 304 + calculateStringLength(nickname) * charWidth * 2.0;
+    int cursorY = 350;
+    drawString(cursorX, cursorY, 2.0, "|", whiteColor);
+}
+
+void TextRenderer::drawHighscores(HighScore* highScores, int numHighScores, int totalPages, int scoresPerPage, int currentPage) {
+    for (int page = 1; page <= totalPages; ++page) {
+        if (page == currentPage) {
+            int startIdx = (page - 1) * scoresPerPage;
+            int endIdx = (startIdx + scoresPerPage < numHighScores) ? startIdx + scoresPerPage : numHighScores;
+
+            for (int i = startIdx; i < endIdx; ++i) {
+                char rankText[5];
+                char pointsText[20];
+                char timeText[30];
+
+
+                sprintf(rankText, "%d.", i + 1);
+                sprintf(pointsText, "Points: %d", highScores[i].points);
+                sprintf(timeText, "Time: %.2f", highScores[i].time);
+
+                drawString(300, 100 + (i - startIdx) * 50, 2.0, rankText, whiteColor);
+                drawString(350, 100 + (i - startIdx) * 50, 2.0, highScores[i].nickname, whiteColor);
+                drawString(650, 100 + (i - startIdx) * 50, 2.0, pointsText, whiteColor);
+                drawString(850, 100 + (i - startIdx) * 50, 2.0, timeText, whiteColor);
+            }
+
+            char pageText[20];
+            sprintf(pageText, "Page %d/%d", page, totalPages);
+            drawString(150, 600, 2.0, pageText, whiteColor);
+        }
+    }
 }
 
 void TextRenderer::drawGameUI(const char* gameTimeText, const char* pointsText) {

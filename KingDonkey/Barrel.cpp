@@ -6,7 +6,7 @@ Barrel::Barrel(SDL_Renderer* renderer, const char* imagePath, float x, float y, 
 void Barrel::update(float deltaTime) {
     applyGravity(deltaTime);
 
-    if (velocityY > 150.0f) {
+    if (velocityY > BARREL_FALLING_SPEED) {
         if (!isFalling) {
             fallingTime = SDL_GetTicks();
         }
@@ -27,10 +27,10 @@ void Barrel::update(float deltaTime) {
     }
 
     if (velocityX > 0.0f) {
-        velocityX = 200.0f;
+        velocityX = BARREL_SPEED*2;
     }
     else {
-        velocityX = -100.0f;
+        velocityX = -BARREL_SPEED;
     }
 
     rect.x += velocityX * deltaTime;

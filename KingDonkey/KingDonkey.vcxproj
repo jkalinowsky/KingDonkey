@@ -104,12 +104,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\kubak\PP\KingDonkey\KingDonkey\KingDonkey\SDL2-2.0.10\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\KingDonkey\SDL2-2.0.10\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\kubak\PP\KingDonkey\KingDonkey\KingDonkey\SDL2-2.0.10\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\KingDonkey\SDL2-2.0.10\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -133,20 +133,24 @@
     <ClCompile Include="Barrel.cpp" />
     <ClCompile Include="Donkey.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="loading.cpp" />
+    <ClCompile Include="Highscores.cpp" />
+    <ClCompile Include="Loading.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="StringUtils.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Barrel.h" />
     <ClInclude Include="Donkey.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="includes.h" />
-    <ClInclude Include="loading.h" />
+    <ClInclude Include="HighScores.h" />
+    <ClInclude Include="defines.h" />
+    <ClInclude Include="Loading.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Sprite.h" />
+    <ClInclude Include="StringUtils.h" />
     <ClInclude Include="TextRenderer.h" />
   </ItemGroup>
   <ItemGroup>

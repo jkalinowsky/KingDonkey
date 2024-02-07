@@ -48,6 +48,11 @@ Game::~Game() {
         delete barrels[i];
     }
     delete[] barrels;
+
+    for (int i = 0; i < 3; ++i) {
+        delete livesSprites[i];
+    }
+    delete[] livesSprites;
 }
 
 void Game::update(SDL_Renderer* renderer) {
@@ -55,14 +60,14 @@ void Game::update(SDL_Renderer* renderer) {
     deltaTime = currentFrameTime - lastFrameTime;
 
     player->handleInput();
-    player->updateAnimations((float)(deltaTime) / 1000.0f);
-    donkey->updateAnimations((float)(deltaTime) / 1000.0f);
+    player->updateAnimations((float)(deltaTime) / SECOND);
+    donkey->updateAnimations((float)(deltaTime) / SECOND);
 
     handleAllCollisions(renderer);
 
     if (showPointsMessage) {
         Uint32 elapsedTime = SDL_GetTicks() - pointsMessageStartTime;
-        if (elapsedTime < 1000) {
+        if (elapsedTime < SECOND) {
             renderPointsMessage = true;
         }
         else {
@@ -72,7 +77,7 @@ void Game::update(SDL_Renderer* renderer) {
     }
 
     for (int i = 0; i < barrels_number; ++i) {
-        barrels[i]->update((float)(deltaTime) / 1000.0f);
+        barrels[i]->update((float)(deltaTime) / SECOND);
         if (!showPointsMessage && player->isOnGround() == false && barrels[i]->isPlayerJumpedOver(player->getHitbox())) {
             points += 100;
 
@@ -85,18 +90,17 @@ void Game::update(SDL_Renderer* renderer) {
         }
     }
 
-    if (barrels_number < MAX_BARRELS && SDL_GetTicks() - lastBarrelSpawnTime >= barrelSpawnInterval - 2000) {
+    if (barrels_number < MAX_BARRELS && SDL_GetTicks() - lastBarrelSpawnTime >= barrelSpawnInterval - (2 * SECOND)) {
         donkey->setIsThrowing(true);
     }
 
     if (barrels_number < MAX_BARRELS && SDL_GetTicks() - lastBarrelSpawnTime >= barrelSpawnInterval) {
-        spawnBarrel(renderer, barrelSpawnPoint.x, barrelSpawnPoint.y, 100.0f);
+        spawnBarrel(renderer, barrelSpawnPoint.x, barrelSpawnPoint.y, BARREL_SPEED);
         lastBarrelSpawnTime = SDL_GetTicks();
         donkey->setIsThrowing(false);
     }
 
-    totalGameTime += (float)deltaTime / 1000.0f;
-    snprintf(gameTimeText, sizeof(gameTimeText), "Time: %.1f s", totalGameTime);
+    totalGameTime += ((float)(deltaTime) / SECOND);
 
     lastFrameTime = currentFrameTime;
     Uint32 remainingTime = (deltaTime < targetFrameTime) ? (targetFrameTime - deltaTime) : 0;
@@ -133,21 +137,31 @@ void Game::restart(SDL_Renderer* renderer) {
         delete platforms[i];
     }
     delete[] platforms;
+    platforms = nullptr;
 
     for (int i = 0; i < ladders_number; ++i) {
         delete ladders[i];
     }
     delete[] ladders;
+    ladders = nullptr;
 
     for (int i = 0; i < barrels_number; ++i) {
         delete barrels[i];
     }
     delete[] barrels;
+    barrels = nullptr;
     barrels_number = 0;
+
+    for (int i = 0; i < trophies_number; ++i) {
+        delete trophies[i];
+    }
+    delete[] trophies;
 
     for (int i = 0; i < 3; ++i) {
         delete livesSprites[i];
     }
+    delete[] livesSprites;
+    livesSprites = nullptr;
 
     char levelFilePath[50];
     sprintf(levelFilePath, "./lvl%d.txt", level);
@@ -175,8 +189,8 @@ void Game::restart(SDL_Renderer* renderer) {
     platforms = new Sprite * [numPlatforms];
     ladders = new Sprite * [numLadders];
     trophies = new Sprite * [numTrophies];
-
     barrels = new Barrel * [MAX_BARRELS];
+    livesSprites = new Sprite * [3];
 
     for (int i = 0; i < numPlatforms; ++i) {
         platforms[i] = new Sprite(renderer, "./graphics/platform.bmp", platformCoordinates[i].x, platformCoordinates[i].y);
@@ -205,9 +219,11 @@ void Game::restart(SDL_Renderer* renderer) {
 }
 
 void Game::playerDie() {
-    lives--;
-    delete livesSprites[lives];
-    livesSprites[lives] = nullptr;
+    if (lives > 0) {
+        delete livesSprites[lives - 1];
+        livesSprites[lives - 1] = nullptr;
+        lives--;
+    }
 }
 
 void Game::restartPlayerLives() {
@@ -236,7 +252,7 @@ void Game::setGameLevel(int level) {
 }
 
 bool Game::playerCompletedLevel() {
-    if (player->getPosY() < 50) {
+    if (player->getPosY() < WINNING_Y) {
         return true;
     }
     return false;
@@ -301,6 +317,11 @@ void Game::handleAllCollisions(SDL_Renderer* renderer) {
             showPointsMessage = true;
             pointsMessageStartTime = SDL_GetTicks();
         }
+    }
+
+    if (player->isOffScreen()) {
+        playerDie();
+        restart(renderer);
     }
 }
 

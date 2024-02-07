@@ -1,7 +1,7 @@
 #ifndef DONKEY_H
 #define DONKEY_H
 
-#include "includes.h"
+#include "defines.h"
 #include "Sprite.h"
 class Donkey : public Sprite
 {
@@ -15,11 +15,9 @@ private:
 
 public:
 	Donkey(SDL_Renderer* renderer, int x, int y);
-
 	SDL_Texture* loadTexture(SDL_Renderer* renderer, const char* imagePath);
 
 	void updateAnimations(float deltaTime);
-
 	void setIsThrowing(bool value);
 
 };

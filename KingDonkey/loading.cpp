@@ -1,4 +1,4 @@
-#include "loading.h"
+#include "Loading.h"
 
 int loadPlatformsNumber(const char* filePath) {
     FILE* file = fopen(filePath, "r");
@@ -29,7 +29,6 @@ void loadPlatformCoordinates(const char* filePath, Coordinates platformCoordinat
         return;
     }
 
-    // Skip the first line containing the number of platforms
     int num;
     if (fscanf(file, "%d", &num) != 1) {
         perror("Error reading the number of platforms");
@@ -43,7 +42,6 @@ void loadPlatformCoordinates(const char* filePath, Coordinates platformCoordinat
         return;
     }
 
-    // Read platform coordinates
     for (int i = 0; i < numPlatforms; ++i) {
         int x, y;
         if (fscanf(file, "%d %d", &x, &y) == 2) {
@@ -69,7 +67,6 @@ int loadLaddersNumber(const char* filePath) {
     }
 
     int numPlatforms;
-    // Read the number of platforms
     if (fscanf(file, "%d", &numPlatforms) != 1) {
         perror("Error reading the number of platforms");
         fclose(file);
@@ -78,7 +75,6 @@ int loadLaddersNumber(const char* filePath) {
 
     int numLadders = 0;
 
-    // Skip lines * numPlatforms to reach the line with the number of ladders
     for (int i = 0; i < numPlatforms; ++i) {
         int x, y;
         if (fscanf(file, "%d %d", &x, &y) != 2) {
@@ -88,7 +84,6 @@ int loadLaddersNumber(const char* filePath) {
         }
     }
 
-    // Read the number of ladders
     if (fscanf(file, "%d", &numLadders) != 1) {
         perror("Error reading the number of ladders");
         fclose(file);
@@ -109,7 +104,6 @@ void loadLadderCoordinates(const char* filePath, Coordinates ladderCoordinates[]
         return;
     }
 
-    // Skip the first lines containing the number of platforms
     int num;
     if (fscanf(file, "%d", &num) != 1) {
         perror("Error reading the number of platforms");
@@ -123,7 +117,6 @@ void loadLadderCoordinates(const char* filePath, Coordinates ladderCoordinates[]
         return;
     }
 
-    // Skip the platform coordinates
     for (int i = 0; i < num; ++i) {
         int x, y;
         if (fscanf(file, "%d %d", &x, &y) != 2) {
@@ -139,7 +132,6 @@ void loadLadderCoordinates(const char* filePath, Coordinates ladderCoordinates[]
         return;
     }
 
-    // Read ladder coordinates
     for (int i = 0; i < numLadders; ++i) {
         int x, y;
         if (fscanf(file, "%d %d", &x, &y) == 2) {
@@ -165,7 +157,6 @@ int loadTrophiesNumber(const char* filePath) {
     }
 
     int numPlatforms;
-    // Skip the number of platforms
     if (fscanf(file, "%d", &numPlatforms) != 1) {
         perror("Error reading the number of platforms");
         fclose(file);
@@ -173,7 +164,6 @@ int loadTrophiesNumber(const char* filePath) {
     }
 
     int numLadders;
-    // Skip the number of ladders
     if (fscanf(file, "%d", &numLadders) != 1) {
         perror("Error reading the number of ladders");
         fclose(file);
@@ -181,7 +171,6 @@ int loadTrophiesNumber(const char* filePath) {
     }
 
     int numTrophies;
-    // Read the number of trophies
     if (fscanf(file, "%d", &numTrophies) != 1) {
         perror("Error reading the number of trophies");
         fclose(file);
@@ -201,7 +190,6 @@ void loadTrophyCoordinates(const char* filePath, Coordinates trophyCoordinates[]
         return;
     }
 
-    // Skip the first lines containing the number of platforms and ladders
     int num;
     if (fscanf(file, "%d", &num) != 1) {
         perror("Error reading the number of platforms");
@@ -245,7 +233,6 @@ void loadTrophyCoordinates(const char* filePath, Coordinates trophyCoordinates[]
         return;
     }
 
-    // Read trophy coordinates
     for (int i = 0; i < numTrophies; ++i) {
         int x, y;
         if (fscanf(file, "%d %d", &x, &y) == 2) {

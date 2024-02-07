@@ -43,7 +43,7 @@ void Donkey::updateAnimations(float deltaTime) {
     if (!isThrowing) {
         animationTimer += deltaTime;
         throwingAnimationIndex = 0;
-        if (animationTimer >= 0.7f) {
+        if (animationTimer >= DONKEY_ANIMATION_SPEED1) {
             standingAnimationIndex = (standingAnimationIndex + 1) % 4;
             texture = standingTexture[standingAnimationIndex];
             animationTimer = 0.0f;
@@ -51,7 +51,7 @@ void Donkey::updateAnimations(float deltaTime) {
     }
     else {
         animationTimer += deltaTime;
-        if (animationTimer >= 0.66f) {
+        if (animationTimer >= DONKEY_ANIMATION_SPEED2) {
             texture = throwingTexture[throwingAnimationIndex];
             throwingAnimationIndex = (throwingAnimationIndex + 1) % 3;
             animationTimer = 0.0f; 

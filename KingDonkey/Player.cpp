@@ -160,14 +160,14 @@ void Player::handlePlatformsCollision(const SDL_Rect& otherRect) {
         int overlapTop = otherRect.y + otherRect.h - rect.y;
         int overlapBottom = rect.y + rect.h - otherRect.y;
 
+        // colliding from top
         if (overlapTop > overlapBottom) {
-            // Colliding from the top
             rect.y = otherRect.y - rect.h;
             velocityY = 0.0f;
             onGround = true;
         }
+        // colliding from bottom
         else {
-            // Colliding from the bottom
             rect.y = otherRect.y + otherRect.h;
             velocityY = 0.0f;
         }
@@ -179,7 +179,7 @@ void Player::handleLaddersCollision(Sprite* ladder) {
     SDL_Rect ladderRect = ladder->getHitbox();
     int playerMiddleX = rect.x + rect.w / 2;
     int ladderMiddleX = ladderRect.x + ladderRect.w / 2;
-    int xRange = 10;
+    int xRange = 10; // the player can be +- 10 pixels away from the ladder's center
 
     if (isColliding(ladderRect) && playerMiddleX >= ladderMiddleX - xRange && playerMiddleX <= ladderMiddleX + xRange) {
         currentLadder = ladder;
@@ -214,6 +214,10 @@ int Player::getPosY() {
 
 int Player::getPosX() {
     return rect.x;
+}
+
+bool Player::isOffScreen() {
+	return rect.y > SCREEN_HEIGHT;
 }
 
 bool Player::isColliding(const SDL_Rect& otherRect) const {
